@@ -80,7 +80,7 @@ namespace KMUtils.Panel
 
         private void Save()
         {
-            string[] data = items.Select(x => x.GetField()).Where(x => string.IsNullOrWhiteSpace(x)).ToArray();
+            string[] data = items.Select(x => x.GetField()).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
             iMain.SetCategory(data);
         }
 

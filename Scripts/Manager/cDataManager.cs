@@ -168,10 +168,15 @@ namespace KMUtils.Manager
 
         public void SetCategorys(string[] data)
         {
-            dataCategory = data;
-            if (dataCategory != null)
+            if (data != null)
             {
-                LogManager.Log($"LoadCategory {dataCategory.Length}");
+                data = data.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+            }
+            dataCategory = data;
+
+            if (dataCategory != null && dataCategory.Length > 0)
+            {
+                LogManager.Log($"LoadCategory {dataCategory.Length} : {string.Join(" / ", data)}");
             }
             else
             {
