@@ -10,45 +10,36 @@ namespace KMUtils.Data
     {
         [SerializeField] private InputField field;
         [SerializeField] private Button btnDelete;
-        public Action<string> onValueChangeField;
         public Action onClickDelete;
 
-        private void Awake()
+        public void Init()
         {
-            field.onValueChanged.AddListener(OnValueChangeField);
             btnDelete.onClick.AddListener(OnClickDelete);
-        }
-
-        private void OnValueChangeField(string str)
-        {
-            onValueChangeField?.Invoke(str);
+            Hide(true);
         }
 
         private void OnClickDelete()
         {
+            Hide(true);
             onClickDelete?.Invoke();
         }
 
-        public void Show(bool isReset)
+        public void Show(string str = "")
+        {
+            SetField(str);
+            gameObject.SetActive(true);
+        }
+
+        public void Hide(bool isReset = false)
         {
             if (isReset)
             {
-                SetField("");
+                SetField();
             }
-            gameObject.SetActive(true);
-        }
-
-        public void Show()
-        {
-            gameObject.SetActive(true);
-        }
-
-        public void Hide()
-        {
             gameObject.SetActive(false);
         }
 
-        public void SetField(string str)
+        private void SetField(string str = "")
         {
             field.text = str;
         }

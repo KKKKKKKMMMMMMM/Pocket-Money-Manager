@@ -98,19 +98,17 @@ namespace KMUtils.Panel.Calender
             for (int i = dow; i < last; ++i)
             {
                 itemCalenders[i].SetText($"{cnt}");
-                IEnumerable<cDataField> daydata = datas.Where(x => x.date.Day == cnt);
-                if(daydata.Count() > 0)
+                if(datas.Any(x => x.date.Day == cnt))
                 {
-                    if (daydata.Where(x => x.type == MoneyType.In).Count() > 0)
+                    if (datas.Any(x => x.type == MoneyType.In))
                     {
                         itemCalenders[i].ShowBlue();
                     }
-                    if (daydata.Where(x => x.type == MoneyType.Out).Count() > 0)
+                    if (datas.Any(x => x.type == MoneyType.Out))
                     {
                         itemCalenders[i].ShowRed();
                     }
                 }
-
                 ++cnt;
             }
 

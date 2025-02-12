@@ -4,9 +4,6 @@ namespace KMUtils.Panel
     {
         public void ShowPanelMain();
         public void ShowPanelList();
-        public void ShowPanelCalendar();
-        public void ShowPanelChart();
         public void ShowPanelAdd();
-        public void ShowPanelCategory();
     }
 }

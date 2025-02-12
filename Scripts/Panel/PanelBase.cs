@@ -49,10 +49,12 @@ namespace KMUtils.Panel
         public abstract void Init();
         public virtual void Show()
         {
+            Log($"Panel Show : {gameObject.name}");
             gameObject.SetActive(true);
         }
         public virtual void Hide()
         {
+            Log($"Panel Hide : {gameObject.name}");
             gameObject.SetActive(false);
         }
 

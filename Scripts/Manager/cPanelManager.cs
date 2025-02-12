@@ -13,9 +13,6 @@ namespace KMUtils.Manager
 
         private PanelMain panelMain;
         private PanelList panelList;
-        private PanelCalendar panelCalendar;
-        private PanelChart panelChart;
-        private PanelCategory panelCategory;
 
         private PanelType currPanel = PanelType.Main;
 
@@ -28,9 +25,6 @@ namespace KMUtils.Manager
         {
             panelMain = panels[(int)PanelType.Main].GetComponent<PanelMain>();
             panelList = panels[(int)PanelType.List].GetComponent<PanelList>();
-            panelCalendar = panels[(int)PanelType.Calender].GetComponent<PanelCalendar>();
-            panelChart = panels[(int)PanelType.Chart].GetComponent<PanelChart>();
-            panelCategory = panels[(int)PanelType.Category].GetComponent<PanelCategory>();
 
             for (int i = 0; i < panels.Length; ++i)
             {
@@ -40,14 +34,7 @@ namespace KMUtils.Manager
             }
 
             ShowPanel(PanelType.List);
-            //panelLoading.EndCallback = EndLoading;
-            //panelLoading.Show();
         }
-
-        //private void EndLoading()
-        //{
-        //    ShowPanel(PanelType.List);
-        //}
 
         public void ShowPanel(PanelType type)
         {
@@ -66,21 +53,9 @@ namespace KMUtils.Manager
         {
             ShowPanel(PanelType.List);
         }
-        public void ShowPanelCalendar()
-        {
-            ShowPanel(PanelType.Calender);
-        }
-        public void ShowPanelChart()
-        {
-            ShowPanel(PanelType.Chart);
-        }
         public void ShowPanelAdd()
         {
             panels[(int)PanelType.Add].Show();
-        }
-        public void ShowPanelCategory()
-        {
-            panels[(int)PanelType.Category].Show();
         }
         #endregion
     }

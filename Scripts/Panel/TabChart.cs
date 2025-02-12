@@ -1,3 +1,4 @@
+using KMUtils.Manager;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,18 +37,8 @@ namespace KMUtils.Panel.Chart
 
         public void Refresh()
         {
-            string other = "Other";
-            string[] categorys = iMain.GetCategorys();
-            KeyValuePair<string, int>[] group = iMain.GetData()
-                .Where(x => x.type == Data.MoneyType.Out)
-                .GroupBy(x => categorys.Contains(x.category) ? x.category : other)
-                .Select(x => new KeyValuePair<string, int>(x.Key, x.Sum(data => data.value))).ToArray();
-            int count = group.Count();
-            if (count < 1)
-            {
-                ShowNodata();
-            }
-            else
+            KeyValuePair<string, int>[] group = cDataManager.Instance.GetChartData();
+            if (group.Length > 0)
             {
                 float max = group.Max(x => x.Value);
                 for (int i = 0; i < itemCharts.Length; ++i)
@@ -65,6 +56,10 @@ namespace KMUtils.Panel.Chart
                     }
                 }
                 HideNodata();
+            }
+            else
+            {
+                ShowNodata();
             }
         }
 

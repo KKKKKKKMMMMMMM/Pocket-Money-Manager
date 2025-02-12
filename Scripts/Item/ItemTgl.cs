@@ -28,7 +28,7 @@ namespace KMUtils.Data
 
         public void Init(string str = "")
         {
-            if (tgl == null || tgl == default(Toggle))
+            if (tgl == null)
             {
                 tgl = GetComponent<Toggle>();
                 tgl.onValueChanged.AddListener(OnValueChanged);

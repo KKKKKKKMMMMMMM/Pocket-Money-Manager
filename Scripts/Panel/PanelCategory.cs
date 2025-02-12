@@ -7,27 +7,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using KMUtils.Manager;
+using System;
 
 namespace KMUtils.Panel
 {
-    public class PanelCategory : PanelBase
+    public class PanelCategory : MonoBehaviour
     {
         [SerializeField] private Text txtTitle;
         [SerializeField] private Button btnQuit;
         [SerializeField] private Button btnAdd;
         [SerializeField] private ItemCategory[] items;
-        private List<string> data = new List<string>();
-        private bool isChange = false;
 
-        private void Awake()
+        private Action<string[]> hideCallback;
+        private bool isInit = false;
+
+        public void Show(string[] data)
         {
-            if (isInit == false)
-            {
-                Init();
-            }
+            Refresh(data);
+            gameObject.SetActive(true);
         }
 
-        public override void Init()
+        public void Hide(bool isSave = true)
+        {
+            if (isSave)
+            {
+                string[] data = items.Select(x => x.GetField()).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+                hideCallback?.Invoke(data);
+            }
+            gameObject.SetActive(false);
+        }
+
+        public void Init(Action<string[]> callback)
         {
             if(isInit)
             {
@@ -35,73 +45,41 @@ namespace KMUtils.Panel
             }
             isInit = true;
 
-            txtTitle.text = GetText("TitlePanelCategory");
+            txtTitle.text = cDataManager.Instance.GetText("TitlePanelCategory");
             btnQuit.onClick.AddListener(OnClickQuit);           
             btnAdd.onClick.AddListener(OnClickAdd);
 
             for (int i = 0; i < items.Length; ++i)
             {
-                int num = i;
-                items[num].onValueChangeField = (str) =>
-                {
-                    isChange = true;
-                    OnValueChangeData(num, str);
-                };
-                items[num].onClickDelete = delegate
-                {
-                    isChange = true;
-                    OnClickDelete(num);
-                };
+                InitItem(i);
             }
-        }
 
-        public override void Show()
+            hideCallback = callback;
+
+            Hide(false);
+        }
+        private void InitItem(int idx)
         {
-            Load();
-            base.Show();
+            items[idx].onClickDelete = () => OnClickDelete(idx);
+            items[idx].Init();
         }
 
-        public override void Hide()
-        {
-            if (isChange)
-            {
-                Save();
-            }
-            base.Hide();
-        }
-
-        private void Load()
-        {
-            data.Clear();
-            data.AddRange(cDataManager.Instance.GetCategorys());
-            Log($"Load Category {data.Count}");
-            Refresh();
-        }
-
-        private void Save()
-        {
-            string[] data = items.Select(x => x.GetField()).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
-            iMain.SetCategory(data);
-        }
-
-        private void Refresh()
+        private void Refresh(string[] datas)
         {
             for (int i = 0; i < items.Length; ++i)
             {
-                items[i].Hide();
+                items[i].Hide(true);
             }
-            for (int i = 0; i < data.Count; ++i)
+            for (int i = 0; i < datas.Length; ++i)
             {
-                items[i].SetField(data[i]);
-                items[i].Show();
+                items[i].Show(datas[i]);
             }
             RefreshBtnAdd();
         }
 
         private void RefreshBtnAdd()
         {
-            bool isActive = items.Where(x => x.gameObject.activeSelf == false).Count() > 0;
-            btnAdd.gameObject.SetActive(isActive);
+            btnAdd.gameObject.SetActive(items.Any(x => !x.gameObject.activeSelf));
         }
 
         private void OnClickQuit()
@@ -110,25 +88,13 @@ namespace KMUtils.Panel
         }
         private void OnClickAdd()
         {
-            Log($"OnClickAdd {data.Count}/{items.Length}");
-            if (data.Count < items.Length)
-            {
-                data.Add("");
-            }
-            Refresh();
+            items.Where(x => x.gameObject.activeSelf == false).First().Show();
+            RefreshBtnAdd();
         }
-
-        private void OnValueChangeData(int idx, string str)
-        {
-            Log($"OnValueChangeData : data[{idx}] = {str}");
-            data[idx] = str;
-        }
-
         private void OnClickDelete(int idx)
         {
-            Log($"OnClickDelete {idx}");
-            data.RemoveAt(idx);
-            Refresh();
+            string[] datas = items.Where((x, index) => index != idx && x.gameObject.activeSelf).Select(x => x.GetField()).ToArray();
+            Refresh(datas);
         }
     }
 }

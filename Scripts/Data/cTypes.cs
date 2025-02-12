@@ -8,9 +8,6 @@ namespace KMUtils.Type
     {
         Main,
         List,
-        Calender,
-        Chart,
         Add,
-        Category,
     }
 }

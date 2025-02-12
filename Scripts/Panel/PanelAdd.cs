@@ -15,7 +15,7 @@ namespace KMUtils.Panel
     {
         [SerializeField] private Button btnQuit;
         [SerializeField] private Button btnAdd;
-        
+
         [SerializeField] private Button btnSetCategory;
 
         [SerializeField] private Text txtTitle;
@@ -27,6 +27,8 @@ namespace KMUtils.Panel
         [SerializeField] private TextLine[] txtLines;
 
         [SerializeField] private Image[] imgEdgeRed;
+
+        [SerializeField] private PanelCategory panelCategory;
 
         private const int YearRange = 10;
 
@@ -77,12 +79,16 @@ namespace KMUtils.Panel
             txtTitle.text = GetText("TitlePanelAdd");
             btnAdd.onClick.AddListener(AddInfo);
             btnQuit.onClick.AddListener(Hide);
-            btnSetCategory.onClick.AddListener(iPanel.ShowPanelCategory);
+            btnSetCategory.onClick.AddListener(()=>panelCategory.Show(iMain.GetCategorys()));
 
             InitDropdown();
             InitCategory();
             InitType();
             InitTextLine();
+
+            panelCategory.Init(HideCategory);
+
+            Refresh();
         }
 
         private void InitDropdown()
@@ -111,7 +117,6 @@ namespace KMUtils.Panel
             {
                 InitItemTglCategory(i);
             }
-            RefreshCategory();
         }
         private void InitItemTglCategory(int idx)
         {
@@ -165,19 +170,18 @@ namespace KMUtils.Panel
         {
             fields[(int)FieldType.Info].text = "";
             fields[(int)FieldType.Value].text = "";
-            RefreshCategory();
+            RefreshCategory(cDataManager.Instance.GetCategorys());
         }
-        private void RefreshCategory()
+        private void RefreshCategory(string[] category)
         {
             for (int i = 0; i < itemTglCategory.Length; ++i)
             {
                 itemTglCategory[i].Hide();
             }
 
-            string[] data = cDataManager.Instance.GetCategorys();
-            for (int i = 0; i < data.Length; ++i)
+            for (int i = 0; i < category.Length; ++i)
             {
-                itemTglCategory[i].SetText(data[i]);
+                itemTglCategory[i].SetText(category[i]);
                 itemTglCategory[i].Show();
             }
         }
@@ -223,13 +227,18 @@ namespace KMUtils.Panel
             }
         }
 
+        private WaitForSeconds wait = new WaitForSeconds(1f);
         private IEnumerator ShowEdgeRed(int idx)
         {
             imgEdgeRed[idx].gameObject.SetActive(true);
-            yield return new WaitForSeconds(1f);
+            yield return wait;
             imgEdgeRed[idx].gameObject.SetActive(false);
         }
 
-
+        private void HideCategory(string[] data)
+        {
+            iMain.SetCategory(data);
+            Refresh();
+        }
     }
 }

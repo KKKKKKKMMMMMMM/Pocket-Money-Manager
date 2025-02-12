@@ -134,6 +134,14 @@ namespace KMUtils.Manager
             return Sort(dataList);
         }
 
+        public KeyValuePair<string, int>[] GetChartData()
+        {
+            return GetData()
+                .Where(x => x.type == MoneyType.Out)
+                .GroupBy(x => dataCategory.Contains(x.category) ? x.category : "Other")
+                .Select(x => new KeyValuePair<string, int>(x.Key, x.Sum(data => data.value))).ToArray();
+        }
+
 #region Category
 
         private const int maxCategoryNum = 6;
@@ -166,19 +174,11 @@ namespace KMUtils.Manager
             }
         }
 
-        public void SetCategorys(string[] data)
+        public void SetCategorys(IEnumerable<string> data)
         {
-            if (data != null)
-            {
-                data = data.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
-            }
-            dataCategory = data;
-
-            if (dataCategory != null && dataCategory.Length > 0)
-            {
-                LogManager.Log($"LoadCategory {dataCategory.Length} : {string.Join(" / ", data)}");
-            }
-            else
+            LogManager.Log($"DataManager SetCategory : {string.Join(" / ", data)}");
+            dataCategory = data.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+            if (dataCategory.Length < 0)
             {
                 dataCategory = new string[1] { GetText("NoneCategory") };
             }
