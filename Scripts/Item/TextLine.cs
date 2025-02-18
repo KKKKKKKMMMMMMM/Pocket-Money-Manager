@@ -9,21 +9,20 @@ namespace KMUtils
     {
         [SerializeField] private Text txt;
         [SerializeField] private Image line;
-
-        [SerializeField] private int total = 650;
         [SerializeField] private int offset = 20;
 
         public void SetLine(string str)
         {
             txt.text = str;
-            float size = total - (txt.preferredWidth + offset);
+            float width = GetComponent<RectTransform>().rect.width;
+            float size = width - (txt.preferredWidth + offset);
             if (size > 0)
             {
-                line.fillAmount = size / total;
+                line.fillAmount = size / width;
             }
             else
             {
-                LogManager.LogError($"TextLine SizeError {str} / {txt.preferredWidth} / {offset} / {total}");
+                LogManager.LogError($"TextLine SizeError {str} / {txt.preferredWidth} / {offset} / {width}");
             }
         }
     }

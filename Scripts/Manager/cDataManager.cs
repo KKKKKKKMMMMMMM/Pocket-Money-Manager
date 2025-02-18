@@ -176,12 +176,8 @@ namespace KMUtils.Manager
 
         public void SetCategorys(IEnumerable<string> data)
         {
-            LogManager.Log($"DataManager SetCategory : {string.Join(" / ", data)}");
-            dataCategory = data.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
-            if (dataCategory.Length < 0)
-            {
-                dataCategory = new string[1] { GetText("NoneCategory") };
-            }
+            dataCategory = data?.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray() ?? new string[1] { GetText("NoneCategory") };
+            LogManager.Log($"DataManager SetCategory : {string.Join(" / ", dataCategory)}");
             isShowCategory = Enumerable.Repeat(true, MaxCategoryNum).ToArray();
             SaveCategory();
         }
