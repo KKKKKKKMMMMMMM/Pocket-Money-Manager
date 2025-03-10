@@ -11,7 +11,7 @@ using KMUtils.Manager;
 
 namespace KMUtils.Panel
 {
-    public class PanelAdd : PanelBase
+    public class PanelAdd : MonoBehaviour
     {
         [SerializeField] private Button btnQuit;
         [SerializeField] private Button btnAdd;
@@ -29,6 +29,8 @@ namespace KMUtils.Panel
         [SerializeField] private Image[] imgEdgeRed;
 
         [SerializeField] private PanelCategory panelCategory;
+
+        public Action addCallback;
 
         private const int YearRange = 10;
 
@@ -58,28 +60,31 @@ namespace KMUtils.Panel
 
         }
 
-        public override void Show()
+        public void Show()
         {
             Refresh();
-            base.Show();
+            gameObject.SetActive(true);
         }
-        public override void Hide()
+        public void Hide()
         {
-            base.Hide();
+            gameObject.SetActive(false);
         }
 
-        public override void Init()
+        private string GetText(string key)
         {
-            if (isInit)
-            {
-                return;
-            }
+            return cDataManager.Instance.GetText(key);
+        }
+
+        private bool isInit = false;
+        public void Init()
+        {
+            if (isInit) return;
             isInit = true;
 
             txtTitle.text = GetText("TitlePanelAdd");
             btnAdd.onClick.AddListener(AddInfo);
             btnQuit.onClick.AddListener(Hide);
-            btnSetCategory.onClick.AddListener(()=>panelCategory.Show(iMain.GetCategorys()));
+            btnSetCategory.onClick.AddListener(()=>panelCategory.Show(cDataManager.Instance.GetCategorys()));
 
             InitDropdown();
             InitCategory();
@@ -126,7 +131,6 @@ namespace KMUtils.Panel
                 if (isOn)
                 {
                     currCategory = idx;
-                    Log($"OnToggleCategory {idx}");
                 }
             };
         }
@@ -163,6 +167,7 @@ namespace KMUtils.Panel
                 int value = Convert.ToInt32(fields[(int)FieldType.Value].text);
                 cDataManager.Instance.AddData(date, currCategory, tglTypes[0].IsOn, value, info);
                 Hide();
+                addCallback?.Invoke();
             }
         }
 
@@ -237,7 +242,7 @@ namespace KMUtils.Panel
 
         private void HideCategory(string[] data)
         {
-            iMain.SetCategory(data);
+            cDataManager.Instance.SetCategorys(data);
             Refresh();
         }
     }

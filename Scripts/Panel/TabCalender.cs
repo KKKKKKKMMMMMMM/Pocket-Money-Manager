@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using KMUtils.Manager;
 
 namespace KMUtils.Panel.Calender
 {
@@ -15,6 +16,7 @@ namespace KMUtils.Panel.Calender
         [SerializeField] private GameObject preCalender;
 
         private List<ItemCalender> itemCalenders;
+        public Action<int, int, int> showTargetDayList;
 
         private void Start()
         {
@@ -66,6 +68,7 @@ namespace KMUtils.Panel.Calender
                 obj.name = "Calender" + i;
                 ItemCalender item = obj.GetComponent<ItemCalender>();
                 item.Reset();
+                item.onClickBtn = OnClickItemCalender;
                 itemCalenders.Add(item);
             }
         }
@@ -81,51 +84,41 @@ namespace KMUtils.Panel.Calender
         {
             int year = iMain.DataManager.GetTargetYear();
             int month = iMain.DataManager.GetTargetMonth();
-            Refresh(year, month);
-        }
 
-        private void Refresh(int year, int month)
-        {
-            DateTime date = new DateTime(year, month, 1);
-            int dow = (int)date.DayOfWeek;
-            IEnumerable<cDataField> datas = iMain.GetData().Where(x => x.date.Year == year && x.date.Month == month);
             for (int i = 0; i < itemCalenders.Count; ++i)
             {
                 itemCalenders[i].Reset();
             }
+
+            Dictionary<int, (bool isIn, bool isOut)> dic = cDataManager.Instance.GetData()
+                .GroupBy(x => x.date.Day)
+                .ToDictionary(x => x.Key, (x => (x.Any(d => d.type == MoneyType.In), x.Any(d => d.type == MoneyType.Out))));
+
+            int dow = (int)new DateTime(year, month, 1).DayOfWeek;
             int last = DateTime.DaysInMonth(year, month) + dow;
-            int cnt = 1;
+            int day = 1;
             for (int i = dow; i < last; ++i)
             {
-                itemCalenders[i].SetText($"{cnt}");
-                if(datas.Any(x => x.date.Day == cnt))
+                itemCalenders[i].SetDate(year, month, day);
+                if (dic.ContainsKey(day))
                 {
-                    if (datas.Any(x => x.type == MoneyType.In))
-                    {
-                        itemCalenders[i].ShowBlue();
-                    }
-                    if (datas.Any(x => x.type == MoneyType.Out))
-                    {
-                        itemCalenders[i].ShowRed();
-                    }
+                    itemCalenders[i].ShowBlue(dic[day].isIn);
+                    itemCalenders[i].ShowRed(dic[day].isOut);
                 }
-                ++cnt;
+                ++day;
             }
 
-            if (last <= 7 * 5)
+            Action<ItemCalender> action = (last <= 7 * 5) ? (item => item.Hide()) : (item => item.Show());
+            for (int i = 7 * 5; i < itemCalenders.Count; ++i)
             {
-                for (int i = 7 * 5; i < itemCalenders.Count; ++i)
-                {
-                    itemCalenders[i].Hide();
-                }
+                action(itemCalenders[i]);
             }
-            else
-            {
-                for (int i = 7 * 5; i < itemCalenders.Count; ++i)
-                {
-                    itemCalenders[i].Show();
-                }
-            }
+        }
+
+        private void OnClickItemCalender(int year, int month, int day)
+        {
+            LogManager.Log($"OnClick {year} - {month} - {day}");
+            showTargetDayList?.Invoke(year, month, day);
         }
     }
 }

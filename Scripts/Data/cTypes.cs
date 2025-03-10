@@ -8,6 +8,6 @@ namespace KMUtils.Type
     {
         Main,
         List,
-        Add,
+        Popup,
     }
 }

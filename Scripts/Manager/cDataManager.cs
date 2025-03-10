@@ -129,20 +129,48 @@ namespace KMUtils.Manager
             SaveData();
         }
 
+        public void DeleteData(cDataField data)
+        {
+            if (dataList.Contains(data))
+            {
+                dataList.Remove(data);
+                SaveData();
+                LogManager.Log($"Delete Data Success");
+            }
+            else
+            {
+                LogManager.LogWarning($"Delete Data Error");
+            }
+        }
+
         public IEnumerable<cDataField> GetData()
         {
             return Sort(dataList);
         }
 
-        public KeyValuePair<string, int>[] GetChartData()
+        public IEnumerable<cDataField> GetData(int year, int month, int day)
+        {
+            return dataList.Where(x => x.date.Year == year && x.date.Month == month && x.date.Day == day);
+        }
+
+        public IEnumerable<(string, int)> GetChartData()
         {
             return GetData()
                 .Where(x => x.type == MoneyType.Out)
                 .GroupBy(x => dataCategory.Contains(x.category) ? x.category : "Other")
-                .Select(x => new KeyValuePair<string, int>(x.Key, x.Sum(data => data.value))).ToArray();
+                .Select(x => (x.Key, x.Sum(data => data.value)));
         }
 
-#region Category
+        public IEnumerable<(int, int, int)> GetChartData(int categoryNum)
+        {
+            return GetData()
+                .Where(x => x.type == MoneyType.Out)
+                .Where(x => x.category == dataCategory[categoryNum])
+                .GroupBy(x => (x.date.Year, x.date.Month))
+                .Select(x => (x.Key.Year, x.Key.Month, x.Sum(data => data.value)));
+        }
+
+        #region Category
 
         private const int maxCategoryNum = 6;
         public int MaxCategoryNum

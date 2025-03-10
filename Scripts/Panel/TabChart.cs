@@ -37,21 +37,23 @@ namespace KMUtils.Panel.Chart
 
         public void Refresh()
         {
-            KeyValuePair<string, int>[] group = cDataManager.Instance.GetChartData();
-            if (group.Length > 0)
+            (string Category, int Value)[] datas = cDataManager.Instance.GetChartData().ToArray();
+            if (datas.Any())
             {
-                float max = group.Max(x => x.Value);
+                float total = datas.Sum(x => x.Value);
+                float max = datas.Max(x => x.Value);
                 for (int i = 0; i < itemCharts.Length; ++i)
                 {
-                    if (i < group.Length)
+                    if (i < datas.Length)
                     {
-                        itemCharts[i].SetTxt(group[i].Key);
-                        itemCharts[i].SetImg(group[i].Value / max);
+                        itemCharts[i].SetTxt(datas[i].Category);
+                        itemCharts[i].SetImg(datas[i].Value / max);
+                        itemCharts[i].SetRatio($"{datas[i].Value / total * 100f:F0}%");
+                        itemCharts[i].SetValue($"{datas[i].Value:N0}");
                         itemCharts[i].Show();
                     }
                     else
                     {
-                        itemCharts[i].SetTxt("");
                         itemCharts[i].Hide();
                     }
                 }
@@ -71,5 +73,36 @@ namespace KMUtils.Panel.Chart
         {
             rtNoData.gameObject.SetActive(false);
         }
+
+        public void OnClickCategory(int num)
+        {// 카테고리별 월별 소비 변화 차트로 표시
+            (int, int, int)[] datas = cDataManager.Instance.GetChartData(num).ToArray();
+            if (datas.Any())
+            {
+                //float total = datas.Sum(x => x.Value);
+                //float max = datas.Max(x => x.Value);
+                //for (int i = 0; i < itemCharts.Length; ++i)
+                //{
+                //    if (i < datas.Length)
+                //    {
+                //        itemCharts[i].SetTxt(datas[i].Category);
+                //        itemCharts[i].SetImg(datas[i].Value / max);
+                //        itemCharts[i].SetRatio($"{datas[i].Value / total * 100f:F0}%");
+                //        itemCharts[i].SetValue($"{datas[i].Value:N0}");
+                //        itemCharts[i].Show();
+                //    }
+                //    else
+                //    {
+                //        itemCharts[i].Hide();
+                //    }
+                //}
+                //HideNodata();
+            }
+            else
+            {
+                ShowNodata();
+            }
+        }
+
     }
 }

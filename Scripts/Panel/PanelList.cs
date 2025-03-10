@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using KMUtils.Panel.Calender;
 using KMUtils.Data.SortType;
 using KMUtils.Panel.Chart;
+using KMUtils.Manager;
 
 namespace KMUtils.Panel
 {
@@ -19,9 +20,11 @@ namespace KMUtils.Panel
         [SerializeField] private Button btnChart;
 
         [SerializeField] private TabSort tabSort;
+        [SerializeField] private PanelAdd panelAdd;
         [SerializeField] private RectTransform tabList;
         [SerializeField] private TabCalender tabCalender;
         [SerializeField] private TabChart tabChart;
+
         [SerializeField] private Text txtSort;
         [SerializeField] private Text[] txtTotals;
 
@@ -39,23 +42,19 @@ namespace KMUtils.Panel
 
         public override void Init()
         {
-            if (isInit)
-            {
-                return;
-            }
+            if (isInit) return;
             isInit = true;
 
-            btnQuit.onClick.AddListener(iMain.OnQuit);
-            btnAdd.onClick.AddListener(iPanel.ShowPanelAdd);
-            btnChange.onClick.AddListener(ChangeTab);
-            btnSort.onClick.AddListener(ShowSort);
-            btnChart.onClick.AddListener(OnClickTabChart);
+            InitBtn();
             InitText();
             InitItem();
             InitTabCalender();
+
+            panelAdd.Init();
+            panelAdd.addCallback = Refresh;
             tabSort.Init(iMain);
             tabSort.fnHideCallback = Refresh;
-
+            tabCalender.showTargetDayList = ShowTargetDayList;
             tabCalender.IMain = iMain;
             tabCalender.IPanel = iPanel;
             tabChart.IMain = iMain;
@@ -65,19 +64,29 @@ namespace KMUtils.Panel
             ShowList();
         }
 
+        private void InitBtn()
+        {
+            btnQuit.onClick.AddListener(iMain.OnQuit);
+            btnAdd.onClick.AddListener(panelAdd.Show);
+            btnChange.onClick.AddListener(ChangeTab);
+            btnSort.onClick.AddListener(ShowSort);
+            btnChart.onClick.AddListener(OnClickTabChart);
+        }
+
         private void InitText()
         {
             string[] key = new string[]
             {
-                "잔액 : ",
-                "입금 : ",
-                "출금 : "
+                "RemainingMoney",
+                "InputMoney",
+                "OutputMoney"
             };
             for (int i = 0; i < totals.Length; ++i)
             {
-                txtTotals[i].text = $"{key[i]}{totals[i]}원";
+                txtTotals[i].text = $"{GetText(key[i])} : {totals[i]}{GetText("MoneyType")}";
             }
         }
+
         private void InitItem()
         {
             itemPool = new List<ItemDFList>();            
@@ -90,15 +99,9 @@ namespace KMUtils.Panel
                 obj.name = $"item{i + 1}";
                 ItemDFList item = obj.GetComponent<ItemDFList>();
                 item.Hide();
+                item.onClickCallback = OnClickItem;
                 itemPool.Add(item);
             }
-        }
-
-        private void InitTabCalender()
-        {
-            tabCalender.IMain = iMain;
-            tabCalender.IPanel = IPanel;
-            tabCalender.Init();
         }
 
         private void DestroyItem()
@@ -110,6 +113,13 @@ namespace KMUtils.Panel
                     DestroyImmediate(item);
                 }
             }
+        }
+
+        private void InitTabCalender()
+        {
+            tabCalender.IMain = iMain;
+            tabCalender.IPanel = IPanel;
+            tabCalender.Init();
         }
 
         public override void Show()
@@ -139,11 +149,9 @@ namespace KMUtils.Panel
 
         private void RefreshData(cDataField[] datas)
         {
-            int lastValue = 0;
             for (int i = 0; i < datas.Length; ++i)
             {
-                lastValue += datas[i].type == MoneyType.In ? datas[i].value : -datas[i].value;
-                itemPool[i].Show(GetStrData(datas[i], lastValue));
+                itemPool[i].Show(datas[i]);
             }
 
             if (datas.Length >= ItemMax)
@@ -164,26 +172,6 @@ namespace KMUtils.Panel
             txtTotals[0].text = $"{GetText("RemainingMoney")} {totalIn - totalOut}{GetText("MoneyType")}";
             txtTotals[1].text = $"{GetText("InputMoney")} {totalIn}{GetText("MoneyType")}";
             txtTotals[2].text = $"{GetText("OutputMoney")} {totalOut}{GetText("MoneyType")}";
-        }
-
-        public string[] GetStrData(cDataField data, int lastValue)
-        {
-            string[] strdata = new string[5];
-            string dow = GetText($"DayOfWeek{(int)data.date.DayOfWeek}");
-            strdata[0] = $"{data.date.Year:0000}-{data.date.Month:00}-{data.date.Day:00} ({dow})";
-            strdata[1] = $"{data.category}";
-            if (data.type == MoneyType.In)
-            {
-                strdata[2] = $"{GetText("InputMoney")} <color=blue>{data.value}</color>{GetText("MoneyType")}";
-            }
-            else
-            {
-                strdata[2] = $"{GetText("OutputMoney")} <color=red>{data.value}</color>{GetText("MoneyType")}";
-            }
-            strdata[3] = $"{GetText("RemainingMoney")} {lastValue}{GetText("MoneyType")}";
-            strdata[4] = $"{data.info}";
-
-            return strdata;
         }
 
         private void ShowSort()
@@ -260,6 +248,30 @@ namespace KMUtils.Panel
             {
                 tabChart.Show();
             }
+        }
+
+        private void OnClickItem(cDataField data)
+        {
+            string msg = $"{GetText("Date")} : {data.date:yy.MM.dd}\n"
+                       + $"{GetText("Info")} : {data.info}\n"
+                       + $"{GetText("Value")} : {data.value}\n"
+                       + GetText("PanelListDeleteMsg");
+
+            iPanel.ShowPopup(msg, () =>
+            {
+                cDataManager.Instance.DeleteData(data);
+                Refresh();
+            });
+        }
+
+        private void ShowTargetDayList(int year, int month, int day)
+        {
+            cDataField[] datas = cDataManager.Instance.GetData(year, month, day).ToArray();
+            RefreshData(datas);
+            RefreshTotal(datas);
+            txtSort.text = $"{year:0000}.{month:00}.{day:00}";
+            tabList.gameObject.SetActive(true);
+            tabCalender.Hide();
         }
     }
 }

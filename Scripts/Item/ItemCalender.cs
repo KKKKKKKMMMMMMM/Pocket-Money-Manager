@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,17 +11,21 @@ namespace KMUtils.Panel.Calender
         [SerializeField] private Text txt;
         [SerializeField] private Image imgRed;
         [SerializeField] private Image imgBlue;
+        private Button btn;
+        public Action<int, int, int> onClickBtn;
+        private (int year, int month, int day) date;
+
+        private void Awake()
+        {
+            btn = GetComponent<Button>();
+        }
 
         public void Reset()
         {
-            SetText("");
-            HideRed();
-            HideBlue();
-        }
-
-        public string GetText()
-        {
-            return txt.text;
+            ActiveBtn(false);
+            SetText();
+            ShowRed(false);
+            ShowBlue(false);
         }
 
         public void Show()
@@ -32,27 +37,42 @@ namespace KMUtils.Panel.Calender
             gameObject.SetActive(false);
         }
 
-        public void SetText(string str)
+        public void SetDate(int year, int month, int day)
+        {
+            date = (year, month, day);
+            SetText($"{date.day}");
+        }
+
+        private void SetText(string str = "")
         {
             txt.text = str;
         }
 
-        public void ShowRed()
+        public void ShowRed(bool isShow)
         {
-            imgRed.gameObject.SetActive(true);
+            imgRed.gameObject.SetActive(isShow);
+            if (isShow)
+            {
+                ActiveBtn(true);
+            }
         }
-        public void HideRed()
+        public void ShowBlue(bool isShow)
         {
-            imgRed.gameObject.SetActive(false);
+            imgBlue.gameObject.SetActive(isShow);
+            if (isShow)
+            {
+                ActiveBtn(true);
+            }
         }
 
-        public void ShowBlue()
+        private void ActiveBtn(bool isActive)
         {
-            imgBlue.gameObject.SetActive(true);
+            btn.enabled = isActive;
         }
-        public void HideBlue()
+
+        public void OnClickBtn()
         {
-            imgBlue.gameObject.SetActive(false);
+            onClickBtn?.Invoke(date.year, date.month, date.day);
         }
     }
 }

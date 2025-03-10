@@ -4,6 +4,7 @@ using UnityEngine;
 using KMUtils.Panel;
 using KMUtils.Type;
 using KMManager;
+using System;
 
 namespace KMUtils.Manager
 {
@@ -13,6 +14,7 @@ namespace KMUtils.Manager
 
         private PanelMain panelMain;
         private PanelList panelList;
+        private PanelPopup panelPopup;
 
         private PanelType currPanel = PanelType.Main;
 
@@ -25,6 +27,8 @@ namespace KMUtils.Manager
         {
             panelMain = panels[(int)PanelType.Main].GetComponent<PanelMain>();
             panelList = panels[(int)PanelType.List].GetComponent<PanelList>();
+            panelPopup = panels[(int)PanelType.Popup].GetComponent<PanelPopup>();
+            panelPopup.Init();
 
             for (int i = 0; i < panels.Length; ++i)
             {
@@ -53,9 +57,10 @@ namespace KMUtils.Manager
         {
             ShowPanel(PanelType.List);
         }
-        public void ShowPanelAdd()
+
+        public void ShowPopup(string msg, Action callbackok = null, Action callbackcancel = null)
         {
-            panels[(int)PanelType.Add].Show();
+            panelPopup.ShowPopup(msg, callbackok, callbackcancel);
         }
         #endregion
     }
