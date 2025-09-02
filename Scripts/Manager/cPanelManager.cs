@@ -8,13 +8,14 @@ using System;
 
 namespace KMUtils.Manager
 {
-    public class cPanelManager : MonoBehaviour, InterPanel
+    public class cPanelManager : Singleton<cPanelManager>, InterPanel
     {
         [SerializeField] private PanelBase[] panels;
 
         private PanelMain panelMain;
         private PanelList panelList;
         private PanelPopup panelPopup;
+        private PanelHelp panelHelp;
 
         private PanelType currPanel = PanelType.Main;
 
@@ -28,16 +29,18 @@ namespace KMUtils.Manager
             panelMain = panels[(int)PanelType.Main].GetComponent<PanelMain>();
             panelList = panels[(int)PanelType.List].GetComponent<PanelList>();
             panelPopup = panels[(int)PanelType.Popup].GetComponent<PanelPopup>();
-            panelPopup.Init();
+            panelHelp = panels[(int)PanelType.Help].GetComponent<PanelHelp>();
 
             for (int i = 0; i < panels.Length; ++i)
             {
                 panels[i].IMain = interMain;
                 panels[i].IPanel = this;
+                panels[i].Init();
                 panels[i].Hide();
             }
 
             ShowPanel(PanelType.List);
+            cTutorialManager.Instance.ShowTutorial(TutorialType.List);
         }
 
         public void ShowPanel(PanelType type)

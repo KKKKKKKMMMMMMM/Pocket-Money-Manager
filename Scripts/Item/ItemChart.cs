@@ -1,9 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace KMUtils.Panel.Chart
+namespace KMUtils.Panel
 {
     public class ItemChart : MonoBehaviour
     {
@@ -11,6 +12,7 @@ namespace KMUtils.Panel.Chart
         [SerializeField] private Text[] txt;
         private Image img;
         [SerializeField] private float initSizeY;
+        public Action<string, Color32> onPointUpCallback;
 
         private void Awake()
         {
@@ -44,6 +46,7 @@ namespace KMUtils.Panel.Chart
         {
             SetName(str);
         }
+
         public void SetRatio(string ratio)
         {
             txt[0].text = ratio;
@@ -74,6 +77,11 @@ namespace KMUtils.Panel.Chart
             {
                 txt[i].text = "";
             }
+        }
+
+        public void OnPointUpChart()
+        {
+            onPointUpCallback?.Invoke(txt[1].text, img.color);
         }
     }
 }

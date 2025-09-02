@@ -9,5 +9,14 @@ namespace KMUtils.Type
         Main,
         List,
         Popup,
+        Help,
+    }
+
+    public enum TutorialType
+    {
+        List,
+        Add,
+        Category,
+        Sort,
     }
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace KMUtils.Panel.Calender
+namespace KMUtils.Panel
 {
     public class ItemCalender : MonoBehaviour
     {

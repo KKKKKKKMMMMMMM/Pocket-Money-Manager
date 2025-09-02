@@ -161,11 +161,11 @@ namespace KMUtils.Manager
                 .Select(x => (x.Key, x.Sum(data => data.value)));
         }
 
-        public IEnumerable<(int, int, int)> GetChartData(int categoryNum)
+        public IEnumerable<(int, int, int)> GetChartData(string category)
         {
             return GetData()
                 .Where(x => x.type == MoneyType.Out)
-                .Where(x => x.category == dataCategory[categoryNum])
+                .Where(x => x.category == category)
                 .GroupBy(x => (x.date.Year, x.date.Month))
                 .Select(x => (x.Key.Year, x.Key.Month, x.Sum(data => data.value)));
         }

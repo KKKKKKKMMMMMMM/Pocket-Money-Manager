@@ -4,10 +4,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using KMUtils.Panel.Calender;
 using KMUtils.Data.SortType;
-using KMUtils.Panel.Chart;
 using KMUtils.Manager;
+using System;
+using KMUtils.Type;
 
 namespace KMUtils.Panel
 {
@@ -21,6 +21,7 @@ namespace KMUtils.Panel
 
         [SerializeField] private TabSort tabSort;
         [SerializeField] private PanelAdd panelAdd;
+        [SerializeField] private RectTransform imgNoData;
         [SerializeField] private RectTransform tabList;
         [SerializeField] private TabCalender tabCalender;
         [SerializeField] private TabChart tabChart;
@@ -67,7 +68,7 @@ namespace KMUtils.Panel
         private void InitBtn()
         {
             btnQuit.onClick.AddListener(iMain.OnQuit);
-            btnAdd.onClick.AddListener(panelAdd.Show);
+            btnAdd.onClick.AddListener(ShowAdd);
             btnChange.onClick.AddListener(ChangeTab);
             btnSort.onClick.AddListener(ShowSort);
             btnChart.onClick.AddListener(OnClickTabChart);
@@ -89,7 +90,7 @@ namespace KMUtils.Panel
 
         private void InitItem()
         {
-            itemPool = new List<ItemDFList>();            
+            itemPool = new List<ItemDFList>();
             for (int i = 0; i < ItemMax; ++i)
             {
                 GameObject obj = Instantiate(itemPrefab);
@@ -143,12 +144,14 @@ namespace KMUtils.Panel
             {
                 tabCalender.Refresh();
             }
-            RefreshTotal(datas);          
+            RefreshTotal(datas);
             RefreshTxtSort();
         }
 
         private void RefreshData(cDataField[] datas)
         {
+            imgNoData.gameObject.SetActive(datas.Length < 1);
+
             for (int i = 0; i < datas.Length; ++i)
             {
                 itemPool[i].Show(datas[i]);
@@ -176,7 +179,7 @@ namespace KMUtils.Panel
 
         private void ShowSort()
         {
-            switch(currTab)
+            switch (currTab)
             {
                 case Tab.List:
                     tabSort.ShowSortList();
@@ -186,6 +189,13 @@ namespace KMUtils.Panel
                     tabSort.ShowSortCalender();
                     break;
             }
+            cTutorialManager.Instance.ShowTutorial(TutorialType.Sort);
+        }
+
+        private void ShowAdd()
+        {
+            panelAdd.Show();
+            cTutorialManager.Instance.ShowTutorial(TutorialType.Add);
         }
 
         private enum Tab
@@ -218,15 +228,15 @@ namespace KMUtils.Panel
 
         private void ShowList()
         {
-            iMain.DataManager.ChangeSortType(SortType.Date);
+            cDataManager.Instance.ChangeSortType(SortType.Date);
             Refresh();
             tabList.gameObject.SetActive(true);
-            tabCalender.Hide(); 
+            tabCalender.Hide();
         }
 
         private void ShowCalender()
         {
-            iMain.DataManager.ChangeSortType(SortType.Calender);
+            cDataManager.Instance.ChangeSortType(SortType.Calender);
             Refresh();
             tabList.gameObject.SetActive(false);
             tabCalender.Show();

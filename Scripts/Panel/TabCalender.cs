@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using KMUtils.Manager;
 
-namespace KMUtils.Panel.Calender
+namespace KMUtils.Panel
 {
     public class TabCalender : PanelBase
     {

@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using KMUtils.Data.SortType;
+using KMUtils.Manager;
 
 namespace KMUtils.Panel
 {
@@ -79,11 +80,11 @@ namespace KMUtils.Panel
         }
         private void OnValueChangeDdYear(int value)
         {
-            iMain.DataManager.SetTargetYear(value + DateTime.Today.Year - 5);
+            cDataManager.Instance.SetTargetYear(value + DateTime.Today.Year - 5);
         }
         private void OnValueChangeDdMonth(int value)
         {
-            iMain.DataManager.SetTargetMonth(value + 1);
+            cDataManager.Instance.SetTargetMonth(value + 1);
         }
 
         private void InitSortDate()
